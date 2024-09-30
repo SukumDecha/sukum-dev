@@ -68,25 +68,25 @@ export type Geopoint = {
   alt?: number;
 };
 
-export type Post = {
+export type ProjectCategory = {
   _id: string;
-  _type: "post";
+  _type: "projectCategory";
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
   title: string;
-  excerpt: string;
+};
+
+export type Project = {
+  _id: string;
+  _type: "project";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  title: string;
   slug: Slug;
-  author?: {
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
-    name: string;
-    image: string;
-    bio: string;
-    [internalGroqTypeReferenceTo]?: "author";
-  };
-  mainImage?: {
+  excerpt: string;
+  mainImage: {
     asset?: {
       _ref: string;
       _type: "reference";
@@ -95,19 +95,89 @@ export type Post = {
     };
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
-    alt?: string;
+    alt: string;
     _type: "image";
   };
-  categories?: Array<{
+  categories: Array<{
     _ref: string;
     _type: "reference";
     _weak?: boolean;
     _key: string;
-    title: string;
+    [internalGroqTypeReferenceTo]?: "category";
+  }>;
+  startAt: string;
+  endAt: string;
+  body: Array<
+    | {
+        children?: Array<{
+          marks?: Array<string>;
+          text?: string;
+          _type: "span";
+          _key: string;
+        }>;
+        style?: "normal" | "h1" | "h2" | "h3" | "h4" | "blockquote";
+        listItem?: "bullet";
+        markDefs?: Array<{
+          href?: string;
+          _type: "link";
+          _key: string;
+        }>;
+        level?: number;
+        _type: "block";
+        _key: string;
+      }
+    | {
+        asset?: {
+          _ref: string;
+          _type: "reference";
+          _weak?: boolean;
+          [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+        };
+        hotspot?: SanityImageHotspot;
+        crop?: SanityImageCrop;
+        alt?: string;
+        _type: "image";
+        _key: string;
+      }
+  >;
+};
+
+export type Post = {
+  _id: string;
+  _type: "post";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  title: string;
+  slug: Slug;
+  excerpt: string;
+  author?: {
+    _ref: string;
+    _type: "reference";
+    _weak?: boolean;
+    [internalGroqTypeReferenceTo]?: "author";
+  };
+  mainImage: {
+    asset?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+    };
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt: string;
+    _type: "image";
+  };
+  categories: Array<{
+    _ref: string;
+    _type: "reference";
+    _weak?: boolean;
+    _key: string;
     [internalGroqTypeReferenceTo]?: "category";
   }>;
   publishedAt: string;
-  body?: Array<
+  body: Array<
     | {
         children?: Array<{
           marks?: Array<string>;
@@ -150,7 +220,7 @@ export type Author = {
   _rev: string;
   name: string;
   slug: Slug;
-  image?: {
+  image: {
     asset?: {
       _ref: string;
       _type: "reference";
@@ -181,6 +251,12 @@ export type Author = {
   }>;
 };
 
+export type Slug = {
+  _type: "slug";
+  current: string;
+  source?: string;
+};
+
 export type Category = {
   _id: string;
   _type: "category";
@@ -188,14 +264,6 @@ export type Category = {
   _updatedAt: string;
   _rev: string;
   title: string;
-  slug?: Slug;
-  description?: string;
-};
-
-export type Slug = {
-  _type: "slug";
-  current?: string;
-  source?: string;
 };
 
 export type BlockContent = Array<
@@ -295,10 +363,12 @@ export type AllSanitySchemaTypes =
   | SanityImageDimensions
   | SanityFileAsset
   | Geopoint
+  | ProjectCategory
+  | Project
   | Post
   | Author
-  | Category
   | Slug
+  | Category
   | BlockContent
   | SanityImageCrop
   | SanityImageHotspot
@@ -306,3 +376,220 @@ export type AllSanitySchemaTypes =
   | SanityAssetSourceData
   | SanityImageMetadata;
 export declare const internalGroqTypeReferenceTo: unique symbol;
+// Source: ./src/sanity/queries/blog.query.ts
+// Variable: FIND_ALL_BLOG
+// Query: *[_type == "post"] | order(publishedAt desc) {      title,      slug,      excerpt,      mainImage,      publishedAt,      author->{name},      categories[]->{title}    }
+export type FIND_ALL_BLOGResult = Array<{
+  title: string;
+  slug: Slug;
+  excerpt: string;
+  mainImage: {
+    asset?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+    };
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt: string;
+    _type: "image";
+  };
+  publishedAt: string;
+  author: {
+    name: string;
+  } | null;
+  categories: Array<{
+    title: string;
+  }>;
+}>;
+// Variable: FIND_BLOG_BY_SLUG
+// Query: *[_type == "post" && slug.current == $slug][0]{      title,      mainImage,      publishedAt,      author->{name, image, bio},      categories[]->{title},      body    }
+export type FIND_BLOG_BY_SLUGResult = {
+  title: string;
+  excerpt: string;
+  mainImage: {
+    asset?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+    };
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt: string;
+    _type: "image";
+  };
+  publishedAt: string;
+  author: {
+    name: string;
+    image: {
+      asset?: {
+        _ref: string;
+        _type: "reference";
+        _weak?: boolean;
+        [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+      };
+      hotspot?: SanityImageHotspot;
+      crop?: SanityImageCrop;
+      _type: "image";
+    };
+    bio: Array<{
+      children?: Array<{
+        marks?: Array<string>;
+        text?: string;
+        _type: "span";
+        _key: string;
+      }>;
+      style?: "normal";
+      listItem?: never;
+      markDefs?: Array<{
+        href?: string;
+        _type: "link";
+        _key: string;
+      }>;
+      level?: number;
+      _type: "block";
+      _key: string;
+    }> | null;
+  } | null;
+  categories: Array<{
+    title: string;
+  }>;
+  body: Array<
+    | {
+        children?: Array<{
+          marks?: Array<string>;
+          text?: string;
+          _type: "span";
+          _key: string;
+        }>;
+        style?: "blockquote" | "h1" | "h2" | "h3" | "h4" | "normal";
+        listItem?: "bullet";
+        markDefs?: Array<{
+          href?: string;
+          _type: "link";
+          _key: string;
+        }>;
+        level?: number;
+        _type: "block";
+        _key: string;
+      }
+    | {
+        asset?: {
+          _ref: string;
+          _type: "reference";
+          _weak?: boolean;
+          [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+        };
+        hotspot?: SanityImageHotspot;
+        crop?: SanityImageCrop;
+        alt?: string;
+        _type: "image";
+        _key: string;
+      }
+  >;
+} | null;
+
+// Source: ./src/sanity/queries/category.query.ts
+// Variable: FIND_ALL_CATEGORY
+// Query: *[_type == "category"] {        title      }
+export type FIND_ALL_CATEGORYResult = Array<{
+  title: string;
+}>;
+
+// Source: ./src/sanity/queries/project.query.ts
+// Variable: FIND_ALL_PROJECT
+// Query: *[_type == "project"] | order(publishedAt desc) {      title,      slug,      excerpt,      mainImage,      startAt,      endAt,      categories[]->{title}    }
+export type FIND_ALL_PROJECTResult = Array<{
+  title: string;
+  slug: Slug;
+  excerpt: string;
+  mainImage: {
+    asset?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+    };
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt: string;
+    _type: "image";
+  };
+  startAt: string;
+  endAt: string;
+  categories: Array<{
+    title: string;
+  }>;
+}>;
+// Variable: FIND_PROJECT_BY_SLUG
+// Query: *[_type == "post" && slug.current == $slug][0]{      title,      mainImage,      startAt,      endAt,      categories[]->{title},      body    }
+export type FIND_PROJECT_BY_SLUGResult = {
+  title: string;
+  slug: string;
+  excerpt: string;
+  projectUrl: string;
+  mainImage: {
+    asset?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+    };
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt: string;
+    _type: "image";
+  };
+  startAt: null;
+  endAt: null;
+  categories: Array<{
+    title: string;
+  }>;
+  body: Array<
+    | {
+        children?: Array<{
+          marks?: Array<string>;
+          text?: string;
+          _type: "span";
+          _key: string;
+        }>;
+        style?: "blockquote" | "h1" | "h2" | "h3" | "h4" | "normal";
+        listItem?: "bullet";
+        markDefs?: Array<{
+          href?: string;
+          _type: "link";
+          _key: string;
+        }>;
+        level?: number;
+        _type: "block";
+        _key: string;
+      }
+    | {
+        asset?: {
+          _ref: string;
+          _type: "reference";
+          _weak?: boolean;
+          [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+        };
+        hotspot?: SanityImageHotspot;
+        crop?: SanityImageCrop;
+        alt?: string;
+        _type: "image";
+        _key: string;
+      }
+  >;
+} | null;
+
+// Query TypeMap
+import "@sanity/client";
+declare module "@sanity/client" {
+  interface SanityQueries {
+    '*[_type == "post"] | order(publishedAt desc) {\n      title,\n      slug,\n      excerpt,\n      mainImage,\n      publishedAt,\n      author->{name},\n      categories[]->{title}\n    }': FIND_ALL_BLOGResult;
+    '*[_type == "post" && slug.current == $slug][0]{\n      title,\n      mainImage,\n      publishedAt,\n      author->{name, image, bio},\n      categories[]->{title},\n      body\n    }': FIND_BLOG_BY_SLUGResult;
+    '*[_type == "category"] {\n        title\n      }': FIND_ALL_CATEGORYResult;
+    '*[_type == "project"] | order(publishedAt desc) {\n      title,\n      slug,\n      excerpt,\n      mainImage,\n      startAt,\n      endAt,\n      categories[]->{title}\n    }': FIND_ALL_PROJECTResult;
+    '*[_type == "post" && slug.current == $slug][0]{\n      title,\n      mainImage,\n      startAt,\n      endAt,\n      categories[]->{title},\n      body\n    }': FIND_PROJECT_BY_SLUGResult;
+  }
+}

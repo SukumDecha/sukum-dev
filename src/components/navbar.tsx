@@ -4,12 +4,19 @@ import { ModeToggle } from "./theme-toggle";
 import { useState } from "react";
 import { AlignJustify, X } from "lucide-react";
 import Typography from "./typography";
+import { useRouter } from "next/navigation";
 
 export default function Navbar() {
+  const router = useRouter();
   const [isOpen, setOpen] = useState(false);
 
   const handleToggle = () => {
     setOpen(!isOpen);
+  };
+
+  const handleNavigate = (href: string) => {
+    router.push(href);
+    setOpen(false);
   };
 
   return (
@@ -23,26 +30,41 @@ export default function Navbar() {
           </div>
 
           <nav
-            className={`absolute top-0 left-0 flex flex-col gap-8 justify-center items-center h-screen w-full duration-300 ${isOpen ? "translate-y-0" : "-translate-y-full"} sm:translate-y-0 sm:relative sm:h-fit sm:w-fit sm:flex-row bg-slate-900 dark:bg-slate-50 text-slate-50 dark:text-slate-900 sm:!text-foreground sm:!bg-background`}
+            className={`absolute top-0 left-0 flex flex-col gap-8 justify-center items-center h-screen w-full duration-300 ${isOpen ? "translate-y-0" : "-translate-y-full"} sm:translate-y-0 sm:relative sm:h-fit sm:w-fit sm:flex-row bg-slate-900 dark:bg-slate-50 text-slate-50 dark:text-slate-900 sm:!text-foreground sm:!bg-background z-40`}
           >
             <div className="sm:hidden mb-3">
               <Typography variant="h2" text="Sukum Dev" />
             </div>
-            <Link href="/" className="rounded-md text-sm font-medium">
-              Home
-            </Link>
-            <Link href="/about" className="rounded-md text-sm font-medium">
-              About
-            </Link>
-            <Link href="/projects" className="rounded-md text-sm font-medium">
-              Projects
-            </Link>
-            <Link href="/blogs" className="rounded-md text-sm font-medium">
-              Blogs
-            </Link>
+            
+            <ul className="flex flex-col gap-8 justify-center items-center sm:flex-row [&>li]:cursor-pointer">
+              <li
+                className="rounded-md text-sm font-medium"
+                onClick={() => handleNavigate("/")}
+              >
+                Home
+              </li>
+              <li
+                className="rounded-md text-sm font-medium"
+                onClick={() => handleNavigate("/about")}
+              >
+                About
+              </li>
+              <li
+                className="rounded-md text-sm font-medium"
+                onClick={() => handleNavigate("/projects")}
+              >
+                Projects
+              </li>
+              <li
+                className="rounded-md text-sm font-medium"
+                onClick={() => handleNavigate("/blogs")}
+              >
+                Blogs
+              </li>
+            </ul>
           </nav>
 
-          <div className="flex items-center space-x-4 z-10">
+          <div className="flex items-center space-x-4 z-50">
             <div className="md:hidden flex items-center">
               {isOpen ? (
                 <X

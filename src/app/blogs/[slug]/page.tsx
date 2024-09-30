@@ -1,7 +1,7 @@
 import { PortableText } from "@portabletext/react";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
-import { urlFor } from "@/lib/sanity/image";
+import { urlFor } from "@/lib/sanity/sanity.image";
 import { getAllPost, getPostBySlug } from "@/actions/blog.action";
 import { notFound } from "next/navigation";
 import { Metadata, ResolvingMetadata } from "next";
@@ -32,13 +32,13 @@ export async function generateMetadata(
   if (!post) {
     notFound();
   }
-  
+
   // optionally access and extend (rather than replace) parent metadata
   const previousImages = (await parent).openGraph?.images || [];
 
   return {
-    title: post?.title,
-    description: post?.excerpt,
+    title: post.title,
+    description: post.excerpt,
     openGraph: {
       images: [
         urlFor(post.mainImage!).width(1200).height(630).url(),

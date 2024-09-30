@@ -1,20 +1,9 @@
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import Link from "next/link";
-import Image from "next/image";
-import { urlFor } from "@/lib/sanity/image";
 import { getAllPost } from "@/actions/blog.action";
 import { getAllCategories } from "@/actions/category.action";
 import CategoryFilter from "./_components/category-filter";
 import SearchForm from "./_components/search-form";
 import Typography from "@/components/typography";
-import { truncate } from "@/lib/utils";
+import BlogCard from "./_components/blog.card";
 
 export const revalidate = 10;
 
@@ -42,7 +31,7 @@ export default async function Blog({ searchParams }: IProps) {
       : true;
 
     const matchesCategory = selectedCategory
-      ? post.categories?.some((cat) => cat.title === selectedCategory)
+      ? post.categories.some((cat) => cat.title === selectedCategory)
       : true;
     return matchesSearch && matchesCategory;
   });
@@ -61,48 +50,7 @@ export default async function Blog({ searchParams }: IProps) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredPosts.map((post) => (
-          <Card key={post.slug.current}>
-            <CardHeader>
-              {post.mainImage && (
-                <Image
-                  src={urlFor(post.mainImage).width(400).height(200).url()}
-                  alt={post.title}
-                  width={400}
-                  height={200}
-                  className="rounded-lg mb-4 object-cover"
-                />
-              )}
-              <CardTitle>
-                <Link
-                  href={`/blogs/${post.slug.current}`}
-                  className="hover:underline"
-                >
-                  <Typography variant="h4" text={post.title} />
-                </Link>
-              </CardTitle>
-              <CardDescription>
-                Published at {new Date(post.publishedAt).toLocaleDateString()}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Typography
-                variant="p"
-                className="mb-4 text-foreground"
-                text={truncate(post.excerpt || "Random text", 100)}
-              />
-
-              <p className="text-sm text-muted-foreground mb-2">
-                By {post.author?.name || "Unknown Author"}
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {post.categories?.map((category) => (
-                  <Badge key={category.title} variant="secondary">
-                    {category.title}
-                  </Badge>
-                )) || <Badge variant="secondary">Uncategorized</Badge>}
-              </div>
-            </CardContent>
-          </Card>
+          <BlogCard key={post.slug.current} post={post} />
         ))}
       </div>
 
